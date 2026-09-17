@@ -10,8 +10,6 @@
 
 **[▶ Ver video de demostración](https://youtu.be/REEMPLAZAR-CON-TU-ID)**
 
-*(Reemplazar con el enlace real una vez subido a YouTube o al OneDrive institucional. Debe mostrar hora/fecha del sistema, rostro y voz del autor, y máximo 10 minutos de duración — ver detalle de contenido obligatorio en la [sección 7](#7-video-demostrativo)).*
-
 ---
 
 ## 📋 Tabla de Contenido
