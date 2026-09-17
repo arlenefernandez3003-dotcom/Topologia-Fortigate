@@ -241,7 +241,7 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 | Campo | Valor |
 |---|---|
 | Status | `Enable` |
-| Address Range | `20.25.30.2 – 20.25.37.126` |
+| Address Range | `20.25.30.2 – 20.25.30.126` |
 | Netmask | `255.255.255.128` |
 | Default Gateway | `20.25.30.1` |
 | DNS Server | `8.8.8.8` / `8.8.4.4` |
@@ -289,7 +289,7 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 | Incoming Interface | `VLAN10-USUARIOS` |
 | Outgoing Interface | `port3 (LAN-SERVIDORES)` |
 | Source | `all` |
-| Destination | `WEB-Server (20.25.37.130)` |
+| Destination | `WEB-Server (20.25.30.130)` |
 | Service | `HTTPS` |
 | Action | `ACCEPT` |
 | NAT | ❌ Disabled |
@@ -310,7 +310,7 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 | Incoming Interface | `VLAN10-USUARIOS` |
 | Outgoing Interface | `port3 (LAN-SERVIDORES)` |
 | Source | `all` |
-| Destination | `DB-Server (20.25.37.131)` |
+| Destination | `DB-Server (20.25.30.131)` |
 | Service | `MYSQL (3306)` |
 | Action | `DENY` |
 | Log Violation Traffic | `Enable` |
@@ -374,8 +374,8 @@ Ambos servidores están en la misma LAN de servidores (`port3`), por lo que Fort
 
 | Interfaz | VLAN ID | IP/Netmask |
 |---|---|---|
-| `VLAN20-WEB` | 20 | `20.25.37.129/28` (WEB-Server) |
-| `VLAN30-DB`  | 30 | `20.25.37.145/28` (DB-Server) *(sub-red adicional /28 reservada para este segmento)* |
+| `VLAN20-WEB` | 20 | `20.25.30.129/28` (WEB-Server) |
+| `VLAN30-DB`  | 30 | `20.25.30.145/28` (DB-Server) *(sub-red adicional /28 reservada para este segmento)* |
 
 **Política — WEB-Server → DB-Server, solo 3306:**
 
@@ -386,7 +386,7 @@ Ambos servidores están en la misma LAN de servidores (`port3`), por lo que Fort
 | Name | `WebServer-to-DBServer-3306-only` |
 | Incoming Interface | `VLAN20-WEB` |
 | Outgoing Interface | `VLAN30-DB` |
-| Source | `WEB-Server (20.25.37.130)` |
+| Source | `WEB-Server (20.25.30.130)` |
 | Destination | `DB-Server` |
 | Service | `MYSQL (3306)` |
 | Action | `ACCEPT` |
@@ -431,7 +431,7 @@ El rate limiting se implementa con dos mecanismos complementarios de FortiGate:
 | Name | `DOS-RATE-LIMIT-WAN` |
 | Incoming Interface | `port1 (WAN)` |
 | Source Address | `all` |
-| Destination Address | `WEB-Server (20.25.37.130)` |
+| Destination Address | `WEB-Server (20.25.30.130)` |
 | Service | `HTTPS` |
 
 | Anomaly | Action | Threshold (lab) |
