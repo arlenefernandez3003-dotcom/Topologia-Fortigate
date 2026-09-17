@@ -220,7 +220,7 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 | VLAN ID | `10` |
 | Role | `LAN` |
 | Addressing mode | `Manual` |
-| IP/Netmask | `20.25.37.1 / 255.255.255.128` |
+| IP/Netmask | `20.25.30.1 / 255.255.255.128` |
 | Administrative access | `Ping` |
 
 **port3 — LAN Servidores:**
@@ -229,7 +229,7 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 |---|---|
 | Role | `LAN` |
 | Addressing mode | `Manual` |
-| IP/Netmask | `20.25.37.129 / 255.255.255.240` |
+| IP/Netmask | `20.25.30.129 / 255.255.255.240` |
 | Administrative access | `Ping` |
 
 > Ver evidencia: [02_interfaces_vlan.png](screenshots/02_interfaces_vlan.png)
@@ -241,9 +241,9 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 | Campo | Valor |
 |---|---|
 | Status | `Enable` |
-| Address Range | `20.25.37.2 – 20.25.37.126` |
+| Address Range | `20.25.30.2 – 20.25.37.126` |
 | Netmask | `255.255.255.128` |
-| Default Gateway | `20.25.37.1` |
+| Default Gateway | `20.25.30.1` |
 | DNS Server | `8.8.8.8` / `8.8.4.4` |
 | Lease Time | `1 day` |
 
