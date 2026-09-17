@@ -126,8 +126,6 @@ Se documenta también la configuración de VLAN y seguridad básica en el switch
 
 ## 3. Configuración del Switch
 
-El switch **no** forma parte del requisito "todo por GUI" (ese requisito aplica solo al FortiGate), por lo que se configura por CLI.
-
 **Creación de VLAN 10 y asignación de puertos de acceso:**
 
 ```bash
