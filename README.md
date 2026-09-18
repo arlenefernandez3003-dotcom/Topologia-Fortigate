@@ -35,8 +35,7 @@
    - [4.11 Rate Limiting Anti-DoS](#411-rate-limiting-anti-dos)
 5. [Pruebas de Inyección de Payloads Maliciosos](#5-pruebas-de-inyección-de-payloads-maliciosos)
 6. [Capturas de Pantalla](#6-capturas-de-pantalla)
-7. [Estructura del Repositorio](#8-estructura-del-repositorio)
-
+7. [Estructura del Repositorio](#7-estructura-del-repositorio)
 
 ---
 
@@ -59,6 +58,8 @@ Se documenta también la configuración de VLAN y seguridad básica en el switch
 
 > Direccionamiento derivado de la matrícula **2025-0730** → base `20.25.30.0/24`, consistente con el laboratorio anterior de FortiGate.
 
+> **Nota de diseño:** el FortiGate de este lab solo tiene **3 puertos físicos disponibles**. En vez de cablear cada segmento a un puerto distinto, se usa **un único switch** que concentra los tres segmentos (VLAN 10 - Usuarios, VLAN 20 - WEB, VLAN 30 - DB) y los entrega al FortiGate por **un solo enlace troncal (802.1Q)**. Así el FortiGate solo necesita **2 de sus 3 puertos** (`port1` para WAN y `port2` como troncal), dejando `port3` libre como reserva/mantenimiento. El WEB-Server y el DB-Server se conectan cada uno a su propio puerto de acceso en el switch (VLAN 20 y VLAN 30 respectivamente) — **no** se encadena el DB-Server detrás del WEB-Server, porque si ese tramo no pasa por el FortiGate, la política "WEB-Server solo puede hablar con DB-Server por el 3306" no se podría aplicar ni loggear.
+
 ### 2.1 Diagrama de Topología
 
 ```
@@ -69,24 +70,24 @@ Se documenta también la configuración de VLAN y seguridad básica en el switch
                           ┌────────┴────────┐
                           │    FortiGate    │
                           │  port1 : WAN    │ 192.168.1.10/24
-                          │  port2.10: VLAN10│ 20.25.30.1/25   (Usuarios)
-                          │  port3  : SRV   │ 20.25.30.129/28 (Servidores)
-                          └────┬────────┬───┘
-                               │        │
-                     (trunk)   │        │
-                          ┌────┴────┐   │ port3
-                          │  SW1    │   │
-                          │ VLAN 10 │   └───────────┬──────────────┐
-                          └────┬────┘               │              │
-                     ┌─────────┴─────────┐    ┌──────┴──────┐ ┌────┴──────┐
-                     │                   │    │ WEB-Server  │ │ DB-Server │
-                ┌────┴───┐          ┌────┴───┐│20.25.30.130 │ │20.25.30.131│
-                │  PC1   │          │  PC2   ││  (HTTPS)    │ │ (MySQL)   │
-                │ (DHCP) │          │ (DHCP) │└─────────────┘ └───────────┘
-                └────────┘          └────────┘
-                VLAN 10 — 20.25.30.0/25        LAN Servidores — 20.25.30.128/28
+                          │  port2 : TRUNK  │ (802.1Q — VLAN 10, 20, 30)
+                          │  port3 : LIBRE  │ (reserva / mantenimiento)
+                          └────────┬────────┘
+                                   │ trunk
+                          ┌────────┴────────┐
+                          │       SW1       │
+                          │ VLAN10 VLAN20 VLAN30
+                          └───┬──────┬───────┬─┘
+                    (access)  │      │       │  (access)
+                 ┌────────────┘      │       └────────────┐
+          ┌──────┴──────┐    ┌───────┴───────┐     ┌───────┴──────┐
+          │  PC1 / PC2  │    │  WEB-Server   │     │  DB-Server   │
+          │   (DHCP)    │    │ 20.25.30.130  │     │ 20.25.30.145 │
+          │  VLAN 10    │    │   VLAN 20     │     │   VLAN 30    │
+          └─────────────┘    └───────────────┘     └──────────────┘
+          20.25.30.0/25         20.25.30.128/28 (segmento servidores, repartido en /28 por VLAN)
 
-  Políticas de seguridad aplicadas:
+  Políticas de seguridad aplicadas (todas evaluadas en el FortiGate, vía el trunk):
   ┌───────────────────────────────────────────────────────────────────┐
   │ VLAN10 → Internet     : NAT                                       │
   │ VLAN10 → WEB-Server   : Solo HTTPS (443) — ALLOW                  │
@@ -103,9 +104,11 @@ Se documenta también la configuración de VLAN y seguridad básica en el switch
 | Interfaz | Alias | Rol | Dirección IP | Máscara | Notas |
 |---|---|---|---|---|---|
 | **port1** | WAN | WAN | 192.168.1.10 | /24 | Gateway ISP: 192.168.1.2 |
-| **port2** | TRUNK-SW1 | LAN (trunk 802.1Q) | — | — | Enlace troncal hacia SW1 |
-| **port2.10** | VLAN10-USUARIOS | LAN (VLAN interface) | 20.25.30.1 | /25 | Gateway de VLAN 10 |
-| **port3** | LAN-SERVIDORES | LAN | 20.25.30.129 | /28 | Gateway de la LAN de servidores |
+| **port2** | TRUNK-SW1 | LAN (trunk 802.1Q) | — | — | Enlace troncal único hacia SW1, transporta VLAN 10, 20 y 30 |
+| **port2.10** | VLAN10-USUARIOS | LAN (VLAN interface) | 20.25.30.1 | /25 | Gateway de VLAN 10 (Usuarios) |
+| **port2.20** | VLAN20-WEB | LAN (VLAN interface) | 20.25.30.129 | /28 | Gateway de VLAN 20 (WEB-Server) |
+| **port2.30** | VLAN30-DB | LAN (VLAN interface) | 20.25.30.145 | /28 | Gateway de VLAN 30 (DB-Server) |
+| **port3** | — | LAN (sin usar) | — | — | Puerto libre, no se configura en este lab |
 
 ### 2.3 Tabla de Dispositivos
 
@@ -113,47 +116,66 @@ Se documenta también la configuración de VLAN y seguridad básica en el switch
 |---|---|---|---|---|---|---|
 | **FortiGate** | port1 | 192.168.1.10 | /24 | 192.168.1.2 | Estática | Firewall — WAN |
 | **FortiGate** | port2.10 | 20.25.30.1 | /25 | — | Estática | Gateway VLAN 10 (Usuarios) |
-| **FortiGate** | port3 | 20.25.30.129 | /28 | — | Estática | Gateway LAN Servidores |
-| **SW1** | trunk / VLAN10 | — | — | — | — | Switch de acceso, VLAN 10 + seguridad básica |
+| **FortiGate** | port2.20 | 20.25.30.129 | /28 | — | Estática | Gateway VLAN 20 (WEB-Server) |
+| **FortiGate** | port2.30 | 20.25.30.145 | /28 | — | Estática | Gateway VLAN 30 (DB-Server) |
+| **SW1** | trunk (port2) + access (VLAN10/20/30) | — | — | — | — | Switch de acceso, VLANs + seguridad básica |
 | **PC1** | eth0 | 20.25.30.2 (rango) | /25 | 20.25.30.1 | **DHCP** | Cliente de usuario 1 (VLAN 10) |
 | **PC2** | eth0 | 20.25.30.3 (rango) | /25 | 20.25.30.1 | **DHCP** | Cliente de usuario 2 (VLAN 10) |
-| **WEB-Server** | eth0 | 20.25.30.130 | /28 | 20.25.30.129 | **Estática** | Servidor HTTPS público |
-| **DB-Server** | eth0 | 20.25.30.131 | /28 | 20.25.30.129 | **Estática** | Base de datos MySQL (3306) |
+| **WEB-Server** | eth0 | 20.25.30.130 | /28 | 20.25.30.129 | **Estática** | Servidor HTTPS público (VLAN 20) |
+| **DB-Server** | eth0 | 20.25.30.146 | /28 | 20.25.30.145 | **Estática** | Base de datos MySQL — 3306 (VLAN 30) |
 
-> El rango DHCP disponible en VLAN 10 es `20.25.30.2 – 20.25.30.126`. Ambos servidores usan IP estática porque las políticas de FortiGate (WEB→DB, cuarentena, DoS Policy) referencian sus IPs directamente.
+> El rango DHCP disponible en VLAN 10 es `20.25.30.2 – 20.25.30.126`. Ambos servidores usan IP estática porque las políticas de FortiGate (WEB→DB, cuarentena, DoS Policy) referencian sus IPs directamente. WEB-Server y DB-Server ya no comparten la misma VLAN/subred — cada uno vive en su propio segmento (/28) para que **todo** el tráfico entre ellos pase obligatoriamente por el FortiGate.
 
 ---
 
 ## 3. Configuración del Switch
 
-**Creación de VLAN 10 y asignación de puertos de acceso:**
+**Creación de las tres VLANs:**
 
 ```bash
 vlan database
  vlan 10 name USUARIOS
+ vlan 20 name WEB
+ vlan 30 name DB
 exit
+```
 
+**Puertos de acceso — usuarios, WEB-Server y DB-Server:**
+
+```bash
 interface range fa0/1 - 2
  switchport mode access
  switchport access vlan 10
  spanning-tree portfast
  spanning-tree bpduguard enable
 exit
+
+interface fa0/3
+ switchport mode access
+ switchport access vlan 20
+ description WEB-Server
+exit
+
+interface fa0/4
+ switchport mode access
+ switchport access vlan 30
+ description DB-Server
+exit
 ```
 
-**Enlace troncal hacia el FortiGate (port2):**
+**Enlace troncal único hacia el FortiGate (port2):**
 
 ```bash
 interface fa0/24
  switchport mode trunk
- switchport trunk allowed vlan 10
+ switchport trunk allowed vlan 10,20,30
 exit
 ```
 
 **Seguridad básica de red (port security + hardening):**
 
 ```bash
-interface range fa0/1 - 2
+interface range fa0/1 - 4
  switchport port-security
  switchport port-security maximum 2
  switchport port-security violation restrict
@@ -161,12 +183,12 @@ interface range fa0/1 - 2
 exit
 
 ! Deshabilitar puertos no utilizados
-interface range fa0/3 - 23
+interface range fa0/5 - 23
  shutdown
 exit
 
 ! Deshabilitar protocolos innecesarios en puertos de acceso
-interface range fa0/1 - 2
+interface range fa0/1 - 4
  no cdp enable
 exit
 ```
@@ -209,28 +231,17 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 | IP/Netmask | `192.168.1.10 / 255.255.255.0` |
 | Administrative access | `HTTPS, SSH, Ping` |
 
-**port2 — Trunk hacia SW1:** dejar sin IP, solo como interfaz física base para la VLAN.
+**port2 — Trunk hacia SW1:** dejar sin IP, solo como interfaz física base para las tres VLANs.
 
-**port2.10 — Crear interfaz VLAN:** `Network → Interfaces → Create New → VLAN`
+**Crear las tres interfaces VLAN sobre port2:** `Network → Interfaces → Create New → VLAN`
 
-| Campo | Valor |
-|---|---|
-| Interface Name | `VLAN10-USUARIOS` |
-| Interface | `port2` |
-| VLAN ID | `10` |
-| Role | `LAN` |
-| Addressing mode | `Manual` |
-| IP/Netmask | `20.25.30.1 / 255.255.255.128` |
-| Administrative access | `Ping` |
+| Interfaz | VLAN ID | Role | IP/Netmask | Administrative access |
+|---|---|---|---|---|
+| `VLAN10-USUARIOS` | 10 | LAN | `20.25.30.1 / 255.255.255.128` | Ping |
+| `VLAN20-WEB` | 20 | LAN | `20.25.30.129 / 255.255.255.240` | Ping |
+| `VLAN30-DB` | 30 | LAN | `20.25.30.145 / 255.255.255.240` | Ping |
 
-**port3 — LAN Servidores:**
-
-| Campo | Valor |
-|---|---|
-| Role | `LAN` |
-| Addressing mode | `Manual` |
-| IP/Netmask | `20.25.30.129 / 255.255.255.240` |
-| Administrative access | `Ping` |
+**port3:** se deja sin configurar (puerto libre — ver nota de diseño en la sección 2).
 
 > Ver evidencia: [02_interfaces_vlan.png](screenshots/02_interfaces_vlan.png)
 
@@ -287,7 +298,7 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 |---|---|
 | Name | `VLAN10-to-WebServer-HTTPS` |
 | Incoming Interface | `VLAN10-USUARIOS` |
-| Outgoing Interface | `port3 (LAN-SERVIDORES)` |
+| Outgoing Interface | `VLAN20-WEB` |
 | Source | `all` |
 | Destination | `WEB-Server (20.25.30.130)` |
 | Service | `HTTPS` |
@@ -308,9 +319,9 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 |---|---|
 | Name | `VLAN10-to-DBServer-BLOCK` |
 | Incoming Interface | `VLAN10-USUARIOS` |
-| Outgoing Interface | `port3 (LAN-SERVIDORES)` |
+| Outgoing Interface | `VLAN30-DB` |
 | Source | `all` |
-| Destination | `DB-Server (20.25.30.131)` |
+| Destination | `DB-Server (20.25.30.146)` |
 | Service | `MYSQL (3306)` |
 | Action | `DENY` |
 | Log Violation Traffic | `Enable` |
@@ -368,16 +379,7 @@ Editar `VLAN10-to-WebServer-HTTPS` (o, si el ataque simulado viene desde Interne
 
 ### 4.9 Segmentación WEB-Server ↔ DB-Server (solo 3306)
 
-Ambos servidores están en la misma LAN de servidores (`port3`), por lo que FortiGate no puede filtrar tráfico intra-VLAN salvo que se fuerce con **políticas intra-interfaz** (`Intra-zone traffic` en modo NAT/route con la misma interfaz de entrada y salida), o alternativamente separando cada servidor en su propia VLAN. Para este lab se separa cada servidor en su propia sub-interfaz VLAN sobre `port3`, de forma que el tráfico entre ellos sí pase por el firewall:
-
-**Ruta:** `Network → Interfaces → Create New → VLAN` (dos interfaces adicionales sobre `port3`)
-
-| Interfaz | VLAN ID | IP/Netmask |
-|---|---|---|
-| `VLAN20-WEB` | 20 | `20.25.30.129/28` (WEB-Server) |
-| `VLAN30-DB`  | 30 | `20.25.30.145/28` (DB-Server) *(sub-red adicional /28 reservada para este segmento)* |
-
-**Política — WEB-Server → DB-Server, solo 3306:**
+Al vivir WEB-Server y DB-Server en VLANs distintas (VLAN 20 y VLAN 30, sección 4.1), **todo** su tráfico ya pasa obligatoriamente por el FortiGate — no hace falta crear interfaces adicionales, solo la política de firewall entre ambas VLAN interfaces:
 
 **Ruta:** `Policy & Objects → Firewall Policy → Create New`
 
@@ -387,7 +389,7 @@ Ambos servidores están en la misma LAN de servidores (`port3`), por lo que Fort
 | Incoming Interface | `VLAN20-WEB` |
 | Outgoing Interface | `VLAN30-DB` |
 | Source | `WEB-Server (20.25.30.130)` |
-| Destination | `DB-Server` |
+| Destination | `DB-Server (20.25.30.146)` |
 | Service | `MYSQL (3306)` |
 | Action | `ACCEPT` |
 | Log Allowed Traffic | `All Sessions` |
@@ -480,14 +482,36 @@ admin' --
 
 ## 6. Capturas de Pantalla
 
-Las capturas de evidencia de cada punto de configuración se encuentran en [`screenshots/`](screenshots/), numeradas según el orden de esta guía (00 a 14 en configuración, más las de verificación final: DHCP leases, acceso HTTPS exitoso, bloqueo a DB-Server, bloqueo de descarga `.exe`, y logs de `Forward Traffic` / `Security Events`).
+Las siguientes capturas de pantalla documentan cada punto de configuración de la GUI y están almacenadas en la carpeta [`screenshots/`](screenshots/).
+
+| # | Archivo | Descripción |
+|---|---|---|
+| 00 | [`00_switch_vlan_seguridad.png`](screenshots/00_switch_vlan_seguridad.png) | Terminal CLI del switch mostrando las VLANs 10/20/30 creadas, los puertos de acceso asignados a cada una, el trunk hacia el FortiGate y la configuración de port-security/bpduguard aplicada. |
+| 01 | [`01_cli_acceso_inicial.png`](screenshots/01_cli_acceso_inicial.png) | Terminal CLI del FortiGate mostrando la configuración de port1 con IP `192.168.1.10/24`, seguido de la pantalla de login de la GUI en el navegador. |
+| 02 | [`02_interfaces_vlan.png`](screenshots/02_interfaces_vlan.png) | Vista de `Network → Interfaces` mostrando port1 (WAN), y las tres interfaces VLAN sobre port2: VLAN10-USUARIOS (20.25.30.1/25), VLAN20-WEB (20.25.30.129/28) y VLAN30-DB (20.25.30.145/28). |
+| 03 | [`03_dhcp_vlan10.png`](screenshots/03_dhcp_vlan10.png) | Vista del servidor DHCP configurado en la interfaz VLAN10-USUARIOS mostrando el rango `20.25.30.2 – 20.25.30.126`, el gateway `20.25.30.1` y los servidores DNS. |
+| 04 | [`04_ruta_default.png`](screenshots/04_ruta_default.png) | Vista de `Network → Static Routes` mostrando la ruta `0.0.0.0/0` apuntando al gateway `192.168.1.2` por port1. |
+| 05 | [`05_nat_internet.png`](screenshots/05_nat_internet.png) | Política `VLAN10-to-Internet` mostrando src: VLAN10-USUARIOS, dst: port1, acción ACCEPT con NAT habilitado usando la IP de la interfaz saliente. |
+| 06 | [`06_politica_https_webserver.png`](screenshots/06_politica_https_webserver.png) | Política `VLAN10-to-WebServer-HTTPS` mostrando src: VLAN10-USUARIOS, dst: WEB-Server, servicio HTTPS únicamente, con el perfil de SSL Inspection asignado. |
+| 07 | [`07_politica_bloqueo_db.png`](screenshots/07_politica_bloqueo_db.png) | Política `VLAN10-to-DBServer-BLOCK` mostrando src: VLAN10-USUARIOS, dst: DB-Server, servicio MYSQL (3306), acción DENY con logging de violación activado. |
+| 08 | [`08_dpi_ssl_inspection.png`](screenshots/08_dpi_ssl_inspection.png) | Perfil `DPI-WEBSERVER` en `Security Profiles → SSL/SSH Inspection` mostrando el modo Full SSL Inspection y el certificado CA asignado. |
+| 09 | [`09_ips_sqli_cuarentena.png`](screenshots/09_ips_sqli_cuarentena.png) | Perfil `IPS-ANTI-SQLI` mostrando las firmas de SQL Injection con acción Block y la opción Quarantine (Attacker's IP address) habilitada. |
+| 10 | [`10_politica_web_db_3306.png`](screenshots/10_politica_web_db_3306.png) | Política `WebServer-to-DBServer-3306-only` mostrando src: VLAN20-WEB, dst: VLAN30-DB, servicio MYSQL (3306) únicamente, acción ACCEPT. |
+| 11 | [`11_file_filter_exe.png`](screenshots/11_file_filter_exe.png) | Perfil `FILE-FILTER-EXE` en `Security Profiles → File Filter` mostrando el tipo de archivo `exe` sobre HTTP/HTTPS con acción Block. |
+| 12 | [`12_dos_rate_limiting.png`](screenshots/12_dos_rate_limiting.png) | Policy `DOS-RATE-LIMIT-WAN` mostrando las anomalías `tcp_syn_flood` y `tcp_port_scan` en acción Block, junto al Traffic Shaper `SHAPER-WEBSERVER-PER-IP` aplicado a la política del WEB-Server. |
+| 13 | [`13_payload_sqli_bloqueado.png`](screenshots/13_payload_sqli_bloqueado.png) | Intento de SQL Injection (`' OR '1'='1' --`) contra el formulario del WEB-Server — página de bloqueo de FortiGate mostrando la firma de ataque detectada por `IPS-ANTI-SQLI`. |
+| 14 | [`14_ip_en_cuarentena.png`](screenshots/14_ip_en_cuarentena.png) | Vista de `Dashboard → Quarantine Monitor` mostrando la IP del atacante en cuarentena tras el intento de SQL Injection, con el tiempo restante de bloqueo. |
+| 15 | [`15_dhcp_leases.png`](screenshots/15_dhcp_leases.png) | Vista de leases DHCP activos en VLAN10-USUARIOS mostrando al menos un cliente con IP asignada del rango, confirmando que el DHCP funciona. |
+| 16 | [`16_https_webserver_ok.png`](screenshots/16_https_webserver_ok.png) | Acceso HTTPS exitoso desde un cliente de VLAN 10 al WEB-Server (`20.25.30.130`) — confirma la Política 1. |
+| 17 | [`17_bloqueo_dbserver.png`](screenshots/17_bloqueo_dbserver.png) | Intento fallido de conexión desde VLAN 10 al DB-Server por el puerto 3306 — confirma la Política 2 (bloqueo). |
+| 18 | [`18_bloqueo_web_db_otro_puerto.png`](screenshots/18_bloqueo_web_db_otro_puerto.png) | Intento fallido del WEB-Server de comunicarse con el DB-Server por un puerto distinto a 3306 — confirma la segmentación de la sección 4.9. |
+| 19 | [`19_bloqueo_descarga_exe.png`](screenshots/19_bloqueo_descarga_exe.png) | Intento de descarga de un archivo `.exe` desde un sitio web — página de bloqueo de FortiGate por el perfil `FILE-FILTER-EXE`. |
+| 20 | [`20_log_forward_traffic.png`](screenshots/20_log_forward_traffic.png) | Vista de `Log & Report → Forward Traffic` mostrando entradas de tráfico aceptado (HTTPS al WEB-Server) y bloqueado (DB-Server, descarga .exe) con IPs y políticas aplicadas. |
+| 21 | [`21_log_security_events_sqli.png`](screenshots/21_log_security_events_sqli.png) | Vista de `Log & Report → Security Events → Attack` mostrando el evento SQL Injection bloqueado, la IP origen y la acción `Blocked` + `Quarantined`. |
 
 ---
 
-
----
-
-## 8. Estructura del Repositorio
+## 7. Estructura del Repositorio
 
 ```
 /
@@ -501,7 +525,6 @@ Las capturas de evidencia de cada punto de configuración se encuentran en [`scr
 └── entregable/
     └── ArleneFernandez_20250730_P2.txt
 ```
-
 
 ---
 
