@@ -79,7 +79,7 @@ Se documenta también la configuración de VLAN y seguridad básica en el switch
                           │ VLAN10 VLAN20 VLAN30
                           └───┬──────┬───────┬─┘
                     (access)  │      │       │  (access)
-                 ┌────────────┘      │       └────────────┐
+                 ┌────────────┘      │       └─────────────┐
           ┌──────┴──────┐    ┌───────┴───────┐     ┌───────┴──────┐
           │  PC1 / PC2  │    │  WEB-Server   │     │  DB-Server   │
           │   (DHCP)    │    │ 20.25.30.130  │     │ 20.25.30.145 │
@@ -105,8 +105,8 @@ Se documenta también la configuración de VLAN y seguridad básica en el switch
 |---|---|---|---|---|---|
 | **port1** | WAN | WAN | 192.168.1.10 | /24 | Gateway ISP: 192.168.1.2 |
 | **port2** | TRUNK-SW1 | LAN (trunk 802.1Q) | — | — | Enlace troncal único hacia SW1, transporta VLAN 10, 20 y 30 |
-| **port2.10** | VLAN10-USUARIOS | LAN (VLAN interface) | 20.25.30.1 | /25 | Gateway de VLAN 10 (Usuarios) |
-| **port2.20** | VLAN20-WEB | LAN (VLAN interface) | 20.25.30.129 | /28 | Gateway de VLAN 20 (WEB-Server) |
+| **port2.10** | VLAN10-USUARIOS | LAN (VLAN interface) | 20.25.30.2 | /25 | Gateway de VLAN 10 (Usuarios) |
+| **port2.20** | VLAN20-WEB | LAN (VLAN interface) | 20.25.30.130 | /28 | Gateway de VLAN 20 (WEB-Server) |
 | **port2.30** | VLAN30-DB | LAN (VLAN interface) | 20.25.30.145 | /28 | Gateway de VLAN 30 (DB-Server) |
 | **port3** | — | LAN (sin usar) | — | — | Puerto libre, no se configura en este lab |
 
