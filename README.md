@@ -107,7 +107,7 @@ Se documenta también la configuración de VLAN y seguridad básica en el switch
 | **port2** | TRUNK-SW1 | LAN (trunk 802.1Q) | — | — | Enlace troncal único hacia SW1, transporta VLAN 10, 20 y 30 |
 | **port2.10** | VLAN10-USUARIOS | LAN (VLAN interface) | 20.25.30.2 | /25 | Gateway de VLAN 10 (Usuarios) |
 | **port2.20** | VLAN20-WEB | LAN (VLAN interface) | 20.25.30.130 | /28 | Gateway de VLAN 20 (WEB-Server) |
-| **port2.30** | VLAN30-DB | LAN (VLAN interface) | 20.25.30.145 | /28 | Gateway de VLAN 30 (DB-Server) |
+| **port2.30** | VLAN30-DB | LAN (VLAN interface) | 20.25.30.146 | /28 | Gateway de VLAN 30 (DB-Server) |
 | **port3** | — | LAN (sin usar) | — | — | Puerto libre, no se configura en este lab |
 
 ### 2.3 Tabla de Dispositivos
@@ -115,14 +115,13 @@ Se documenta también la configuración de VLAN y seguridad básica en el switch
 | Dispositivo | Interfaz | Dirección IP | Máscara | Gateway | Método | Rol |
 |---|---|---|---|---|---|---|
 | **FortiGate** | port1 | 192.168.1.10 | /24 | 192.168.1.2 | Estática | Firewall — WAN |
-| **FortiGate** | port2.10 | 20.25.30.1 | /25 | — | Estática | Gateway VLAN 10 (Usuarios) |
-| **FortiGate** | port2.20 | 20.25.30.129 | /28 | — | Estática | Gateway VLAN 20 (WEB-Server) |
-| **FortiGate** | port2.30 | 20.25.30.145 | /28 | — | Estática | Gateway VLAN 30 (DB-Server) |
+| **FortiGate** | port2.10 | 20.25.30.2 | /25 | — | Estática | Gateway VLAN 10 (Usuarios) |
+| **FortiGate** | port2.20 | 20.25.30.130 | /28 | — | Estática | Gateway VLAN 20 (WEB-Server) |
+| **FortiGate** | port2.30 | 20.25.30.146 | /28 | — | Estática | Gateway VLAN 30 (DB-Server) |
 | **SW1** | trunk (port2) + access (VLAN10/20/30) | — | — | — | — | Switch de acceso, VLANs + seguridad básica |
-| **PC1** | eth0 | 20.25.30.2 (rango) | /25 | 20.25.30.1 | **DHCP** | Cliente de usuario 1 (VLAN 10) |
-| **PC2** | eth0 | 20.25.30.3 (rango) | /25 | 20.25.30.1 | **DHCP** | Cliente de usuario 2 (VLAN 10) |
-| **WEB-Server** | eth0 | 20.25.30.130 | /28 | 20.25.30.129 | **Estática** | Servidor HTTPS público (VLAN 20) |
-| **DB-Server** | eth0 | 20.25.30.146 | /28 | 20.25.30.145 | **Estática** | Base de datos MySQL — 3306 (VLAN 30) |
+| **PC1** | eth0 | 20.25.30.3 (rango) | /25 | 20.25.30.2 | **DHCP** | Cliente de usuario 1 (VLAN 10) |
+| **WEB-Server** | eth0 | 20.25.30.131 | /28 | 20.25.30.130 | **Estática** | Servidor HTTPS público (VLAN 20) |
+| **DB-Server** | eth0 | 20.25.30.147 | /28 | 20.25.30.146 | **Estática** | Base de datos MySQL — 3306 (VLAN 30) |
 
 > El rango DHCP disponible en VLAN 10 es `20.25.30.2 – 20.25.30.126`. Ambos servidores usan IP estática porque las políticas de FortiGate (WEB→DB, cuarentena, DoS Policy) referencian sus IPs directamente. WEB-Server y DB-Server ya no comparten la misma VLAN/subred — cada uno vive en su propio segmento (/28) para que **todo** el tráfico entre ellos pase obligatoriamente por el FortiGate.
 
