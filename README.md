@@ -348,32 +348,44 @@ El DPI en FortiGate para tráfico HTTPS se implementa mediante un perfil de **in
 > Ver evidencia: [08_dpi_ssl_inspection.png](screenshots/08_dpi_ssl_inspection.png)
 
 ### 4.8 Detección de SQL Injection con Cuarentena del Atacante
-
+ 
 La detección de SQL Injection se implementa con un **perfil IPS** que incluye las firmas de la categoría *Web Application Attacks* orientadas a SQLi, configurado para **bloquear** y **poner en cuarentena** la IP de origen.
-
+ 
 **Paso 1 — Crear el perfil IPS:**
-
+ 
+**Paso 1 — Crear el perfil IPS y agregar las firmas:**
+ 
 **Ruta:** `Security Profiles → Intrusion Prevention → Create New`
-
+ 
 | Campo | Valor |
 |---|---|
 | Name | `IPS-ANTI-SQLI` |
-| IPS Signatures → Add Signature | Filtrar por `sql.injection` |
-| Action | `Block` |
-| Packet Logging | `Enable` |
-| **Quarantine** | `Attacker's IP address` |
+| IPS Signatures → Add Signature | Filtrar por `sql.injection` (con punto, no con espacio — las firmas de FortiOS usan notación con puntos en el nombre, ej. `AJDating.Viewprofile.PHP.SQL.Injection`; buscar `"SQL Injection"` con espacio no devuelve resultados) → `Add All Results` |
+ 
+**Paso 2 — Editar la fila de firmas agregadas y activar Quarantine:**
+ 
+Las firmas se agregan por defecto con `Action: Default`, y en ese estado FortiOS oculta los campos de Packet Logging/Duración (hereda el comportamiento de fábrica de cada firma). Para activarlos:
+ 
+1. Seleccionar la fila con las firmas recién agregadas en la tabla `IPS Signatures and Filters`.
+2. Click en **`Edit`** (no en el `OK` del sensor completo).
+3. En el dropdown **Action**, elegir directamente **`Quarantine`** (junto a Allow/Monitor/Block/Reset/Default) — esta opción ya incluye el bloqueo del paquete, no hace falta poner `Block` por separado. Al seleccionarla se habilita el campo de duración:
+| Campo | Valor |
+|---|---|
+| Action | `Quarantine` |
+| Packet logging | `Enable` |
 | Quarantine Duration | `5 minutes` *(ajustado para demo; en producción usar un valor mayor)* |
-
-> El campo **Quarantine** es lo que hace que, además de bloquear el paquete que dispara la firma, FortiGate agregue automáticamente la IP de origen a la lista de cuarentena (`Dashboard → Quarantine` / `System → Quarantine Monitor`), bloqueando **todo** su tráfico posterior durante la duración configurada.
-
-**Paso 2 — Aplicar el perfil IPS a la política del WEB-Server:**
-
+ 
+4. Click `OK` en el panel de edición, y luego `OK` en el sensor completo.
+> Al elegir `Action: Quarantine`, FortiGate bloquea el paquete que dispara la firma **y** agrega automáticamente la IP de origen a la lista de cuarentena (`Dashboard → Quarantine` / `System → Quarantine Monitor`), bloqueando **todo** su tráfico posterior durante la duración configurada.
+ 
+**Paso 3 — Aplicar el perfil IPS a la política del WEB-Server:**
+ 
 Editar `VLAN10-to-WebServer-HTTPS` (o, si el ataque simulado viene desde Internet, la política equivalente `Internet-to-WebServer`) → Security Profiles:
-
+ 
 | Campo | Valor |
 |---|---|
 | Intrusion Prevention | ✅ `IPS-ANTI-SQLI` |
-
+ 
 > Ver evidencia: [09_ips_sqli_cuarentena.png](screenshots/09_ips_sqli_cuarentena.png)
 
 ### 4.9 Segmentación WEB-Server ↔ DB-Server (solo 3306)
