@@ -358,7 +358,7 @@ La detección de SQL Injection se implementa con un **perfil IPS** que incluye l
 | Campo | Valor |
 |---|---|
 | Name | `IPS-ANTI-SQLI` |
-| IPS Signatures → Add Signature | Filtrar por `SQL Injection` |
+| IPS Signatures → Add Signature | Filtrar por `sql.injection` |
 | Action | `Block` |
 | Packet Logging | `Enable` |
 | **Quarantine** | `Attacker's IP address` |
