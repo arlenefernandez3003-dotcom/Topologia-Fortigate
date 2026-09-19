@@ -463,7 +463,7 @@ El rate limiting se implementa con dos mecanismos complementarios de FortiGate:
 | Max bandwidth | `2 Mbps` por IP origen |
 | Max concurrent sessions | `20` por IP origen |
 
-Aplicar el shaper en la política que permite tráfico hacia el WEB-Server desde Internet, en la pestaña **Traffic Shaping**.
+Aplicar el shaper en la política que permite tráfico hacia el WEB-Server desde la VLAN10, en la pestaña **Traffic Shaping**.
 
 > Ver evidencia: [12_dos_rate_limiting.png](screenshots/12_dos_rate_limiting.png)
 
