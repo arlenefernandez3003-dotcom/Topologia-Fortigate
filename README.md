@@ -123,7 +123,7 @@ Se documenta también la configuración de VLAN y seguridad básica en el switch
 | **WEB-Server** | eth0 | 20.25.30.131 | /28 | 20.25.30.130 | **Estática** | Servidor HTTPS público (VLAN 20) |
 | **DB-Server** | eth0 | 20.25.30.147 | /28 | 20.25.30.146 | **Estática** | Base de datos MySQL — 3306 (VLAN 30) |
 
-> El rango DHCP disponible en VLAN 10 es `20.25.30.2 – 20.25.30.126`. Ambos servidores usan IP estática porque las políticas de FortiGate (WEB→DB, cuarentena, DoS Policy) referencian sus IPs directamente. WEB-Server y DB-Server ya no comparten la misma VLAN/subred — cada uno vive en su propio segmento (/28) para que **todo** el tráfico entre ellos pase obligatoriamente por el FortiGate.
+> El rango DHCP disponible en VLAN 10 es `20.25.30.3 – 20.25.30.126`. Ambos servidores usan IP estática porque las políticas de FortiGate (WEB→DB, cuarentena, DoS Policy) referencian sus IPs directamente. WEB-Server y DB-Server ya no comparten la misma VLAN/subred — cada uno vive en su propio segmento (/28) para que **todo** el tráfico entre ellos pase obligatoriamente por el FortiGate.
 
 ---
 
@@ -207,7 +207,7 @@ config system interface
     edit "port1"
         set mode static
         set ip 192.168.1.10 255.255.255.0
-        set allowaccess https ssh ping
+        set allowaccess https http ssh ping
         set role wan
     next
 end
@@ -228,7 +228,7 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 | Role | `WAN` |
 | Addressing mode | `Manual` |
 | IP/Netmask | `192.168.1.10 / 255.255.255.0` |
-| Administrative access | `HTTPS, SSH, Ping` |
+| Administrative access | `HTTPS, HTTP, SSH, Ping` |
 
 **port2 — Trunk hacia SW1:** dejar sin IP, solo como interfaz física base para las tres VLANs.
 
@@ -236,9 +236,9 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 
 | Interfaz | VLAN ID | Role | IP/Netmask | Administrative access |
 |---|---|---|---|---|
-| `VLAN10-USUARIOS` | 10 | LAN | `20.25.30.1 / 255.255.255.128` | Ping |
-| `VLAN20-WEB` | 20 | LAN | `20.25.30.129 / 255.255.255.240` | Ping |
-| `VLAN30-DB` | 30 | LAN | `20.25.30.145 / 255.255.255.240` | Ping |
+| `VLAN10-USUARIOS` | 10 | LAN | `20.25.30.2 / 255.255.255.128` | Ping |
+| `VLAN20-WEB` | 20 | LAN | `20.25.30.130 / 255.255.255.240` | Ping |
+| `VLAN30-DB` | 30 | LAN | `20.25.30.146 / 255.255.255.240` | Ping |
 
 **port3:** se deja sin configurar (puerto libre — ver nota de diseño en la sección 2).
 
@@ -251,9 +251,9 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 | Campo | Valor |
 |---|---|
 | Status | `Enable` |
-| Address Range | `20.25.30.2 – 20.25.30.126` |
+| Address Range | `20.25.30.3 – 20.25.30.126` |
 | Netmask | `255.255.255.128` |
-| Default Gateway | `20.25.30.1` |
+| Default Gateway | `20.25.30.2` |
 | DNS Server | `8.8.8.8` / `8.8.4.4` |
 | Lease Time | `1 day` |
 
@@ -299,7 +299,7 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 | Incoming Interface | `VLAN10-USUARIOS` |
 | Outgoing Interface | `VLAN20-WEB` |
 | Source | `all` |
-| Destination | `WEB-Server (20.25.30.130)` |
+| Destination | `WEB-Server (20.25.30.131)` |
 | Service | `HTTPS` |
 | Action | `ACCEPT` |
 | NAT | ❌ Disabled |
@@ -320,7 +320,7 @@ Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales p
 | Incoming Interface | `VLAN10-USUARIOS` |
 | Outgoing Interface | `VLAN30-DB` |
 | Source | `all` |
-| Destination | `DB-Server (20.25.30.146)` |
+| Destination | `DB-Server (20.25.30.147)` |
 | Service | `MYSQL (3306)` |
 | Action | `DENY` |
 | Log Violation Traffic | `Enable` |
@@ -387,8 +387,8 @@ Al vivir WEB-Server y DB-Server en VLANs distintas (VLAN 20 y VLAN 30, sección 
 | Name | `WebServer-to-DBServer-3306-only` |
 | Incoming Interface | `VLAN20-WEB` |
 | Outgoing Interface | `VLAN30-DB` |
-| Source | `WEB-Server (20.25.30.130)` |
-| Destination | `DB-Server (20.25.30.146)` |
+| Source | `WEB-Server (20.25.30.131)` |
+| Destination | `DB-Server (20.25.30.147)` |
 | Service | `MYSQL (3306)` |
 | Action | `ACCEPT` |
 | Log Allowed Traffic | `All Sessions` |
@@ -432,7 +432,7 @@ El rate limiting se implementa con dos mecanismos complementarios de FortiGate:
 | Name | `DOS-RATE-LIMIT-WAN` |
 | Incoming Interface | `port1 (WAN)` |
 | Source Address | `all` |
-| Destination Address | `WEB-Server (20.25.30.130)` |
+| Destination Address | `WEB-Server (20.25.30.131)` |
 | Service | `HTTPS` |
 
 | Anomaly | Action | Threshold (lab) |
