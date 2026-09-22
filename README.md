@@ -227,8 +227,8 @@ Acceder luego desde el navegador a `https://192.168.1.250` con las credenciales 
 |---|---|
 | Role | `WAN` |
 | Addressing mode | `Manual` |
-| IP/Netmask | `192.168.1.10 / 255.255.255.0` |
-| Administrative access | `HTTPS, HTTP, SSH, Ping` |
+| IP/Netmask | `192.168.1.250 / 255.255.255.0` |
+| Administrative access | `HTTPS, SSH, Ping` |
 
 **port2 — Trunk hacia SW1:** dejar sin IP, solo como interfaz física base para las tres VLANs.
 
