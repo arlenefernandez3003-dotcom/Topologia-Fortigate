@@ -206,14 +206,14 @@ exit
 config system interface
     edit "port1"
         set mode static
-        set ip 192.168.1.10 255.255.255.0
-        set allowaccess https http ssh ping
+        set ip 192.168.1.250 255.255.255.0
+        set allowaccess https ssh ping
         set role wan
     next
 end
 ```
 
-Acceder luego desde el navegador a `https://192.168.1.10` con las credenciales por defecto (`admin` / contraseña vacía) y definir una contraseña segura al primer inicio de sesión.
+Acceder luego desde el navegador a `https://192.168.1.250` con las credenciales por defecto (`admin` / contraseña vacía) y definir una contraseña segura al primer inicio de sesión.
 
 > Ver evidencia: [01_cli_acceso_inicial.png](screenshots/01_cli_acceso_inicial.png)
 
