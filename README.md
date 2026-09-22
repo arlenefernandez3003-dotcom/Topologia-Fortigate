@@ -142,20 +142,20 @@ exit
 **Puertos de acceso — usuarios, WEB-Server y DB-Server:**
 
 ```bash
-interface range fa0/1 - 2
+interface range e0/1-2
  switchport mode access
  switchport access vlan 10
  spanning-tree portfast
  spanning-tree bpduguard enable
 exit
 
-interface fa0/3
+interface e0/3
  switchport mode access
  switchport access vlan 20
  description WEB-Server
 exit
 
-interface fa0/4
+interface e1/0
  switchport mode access
  switchport access vlan 30
  description DB-Server
@@ -165,7 +165,7 @@ exit
 **Enlace troncal único hacia el FortiGate (port2):**
 
 ```bash
-interface fa0/24
+interface e0/0
  switchport mode trunk
  switchport trunk allowed vlan 10,20,30
 exit
@@ -174,7 +174,7 @@ exit
 **Seguridad básica de red (port security + hardening):**
 
 ```bash
-interface range fa0/1 - 4
+interface range e0/1 - 3, e1/0
  switchport port-security
  switchport port-security maximum 2
  switchport port-security violation restrict
@@ -182,12 +182,12 @@ interface range fa0/1 - 4
 exit
 
 ! Deshabilitar puertos no utilizados
-interface range fa0/5 - 23
+interface range e1/1 - 3
  shutdown
 exit
 
 ! Deshabilitar protocolos innecesarios en puertos de acceso
-interface range fa0/1 - 4
+interface range e0/1 - 3, e1/0
  no cdp enable
 exit
 ```
