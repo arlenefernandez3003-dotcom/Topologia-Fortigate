@@ -445,7 +445,7 @@ El rate limiting se implementa con dos mecanismos complementarios de FortiGate:
 | Incoming Interface | `port1 (WAN)` |
 | Source Address | `all` |
 | Destination Address | `WEB-Server (20.25.30.131)` |
-| Service | `HTTPS, HTTP` |
+| Service | `HTTPS` |
 
 | Anomaly | Action | Threshold (lab) |
 |---|---|---|
