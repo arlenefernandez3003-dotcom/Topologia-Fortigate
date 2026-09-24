@@ -453,18 +453,38 @@ El rate limiting se implementa con dos mecanismos complementarios de FortiGate:
 | `tcp_port_scan` | `Block` | `5` |
 | `http_flood` (si disponible en la versión de FortiOS) | `Block` | `50` |
 
-**Paso 2 — Traffic Shaping por política (limitación de ancho de banda / sesiones por IP origen):**
-
-**Ruta:** `Policy & Objects → Traffic Shapers → Create New (Per-IP Shaper)`
-
+**Paso 2 — Traffic Shaping (limitación de ancho de banda / sesiones por IP origen):**
+ 
+> En FortiOS 7.0.x el Traffic Shaping **ya no se asigna dentro de la Firewall Policy** junto a los demás Security Profiles — se gestiona mediante dos objetos independientes bajo `Policy & Objects`: el **Traffic Shaper** (el limitador en sí) y una **Traffic Shaping Policy** aparte (que decide a qué tráfico se le aplica ese shaper, replicando el mismo criterio de origen/destino/servicio que la Firewall Policy real).
+ 
+**2.1 — Crear el Traffic Shaper:**
+ 
+**Ruta:** `Policy & Objects → Traffic Shaping → Traffic Shapers → Create New`
+ 
 | Campo | Valor |
 |---|---|
 | Name | `SHAPER-WEBSERVER-PER-IP` |
+| Type | `Per-IP Shaper` |
 | Max bandwidth | `2 Mbps` por IP origen |
 | Max concurrent sessions | `20` por IP origen |
-
-Aplicar el shaper en la política que permite tráfico hacia el WEB-Server desde la VLAN10, en la pestaña **Traffic Shaping**.
-
+ 
+**2.2 — Crear la Traffic Shaping Policy:**
+ 
+**Ruta:** `Policy & Objects → Traffic Shaping → Traffic Shaping Policies → Create New`
+ 
+| Campo | Valor |
+|---|---|
+| Source | `all` |
+| Destination | `WEB-Server (20.25.30.131)` |
+| Service | `HTTPS` |
+| Shared Shaper / Per-IP Shaper | `SHAPER-WEBSERVER-PER-IP` |
+ 
+> Los campos Source/Destination/Service deben coincidir con los de la Firewall Policy `VLAN10-to-WebServer-HTTPS` (sección 4.5) — la Traffic Shaping Policy no reemplaza el ACCEPT/DENY de la Firewall Policy, solo le aplica el límite de ancho de banda al tráfico que esa política ya deja pasar.
+ 
+**2.3 — Verificación:**
+ 
+Generar tráfico de prueba desde un cliente de VLAN 10 hacia el WEB-Server y revisar `Dashboard → FortiView → Sessions` (o `Policies`), agregando la columna **Shaper** para confirmar que las sesiones están siendo marcadas y limitadas por `SHAPER-WEBSERVER-PER-IP`.
+ 
 > Ver evidencia: [12_dos_rate_limiting.png](screenshots/12_dos_rate_limiting.png)
 
 ---
