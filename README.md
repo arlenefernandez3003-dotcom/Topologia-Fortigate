@@ -537,7 +537,7 @@ Las siguientes capturas de pantalla documentan cada punto de configuración de l
 | 17 | [`17_bloqueo_web_db_otro_puerto.png`](screenshots/17_bloqueo_web_db_otro_puerto.png) | Intento fallido del WEB-Server de comunicarse con el DB-Server por un puerto distinto a 3306 — confirma la segmentación de la sección 4.9. |
 | 19 | [`18_bloqueo_descarga_exe.png`](screenshots/18_bloqueo_descarga_exe.png) | Intento de descarga de un archivo `.exe` desde un sitio web — logs de bloqueo de FortiGate por el perfil `FILE-FILTER-EXE`. |
 | 19 | [`19_log_forward_traffic.png`](screenshots/19_log_forward_traffic.png) | Vista de `Log & Report → Forward Traffic` mostrando entradas de tráfico aceptado (HTTPS al WEB-Server) y bloqueado (DB-Server, descarga .exe) con IPs y políticas aplicadas. |
-| 20 | [`20_log_security_events_sqli.png`](screenshots/20_log_security_events_sqli.png) | Vista de `Log & Report → Security Events → Attack` mostrando el evento SQL Injection bloqueado, la IP origen y la acción `Blocked` + `Quarantined`. |
+| 20 | [`20_log_intrusion_prevention.png`](screenshots/20_log_intrusion_prevention.png) | Vista de `Log & Report → Intrusion Prevention` mostrando la detección de la firma `Custom-SQLi` la dirección IP de origen del atacante (20.25.30.3) y la acción ejecutada por el sensor IPS. |
 
 ---
 
