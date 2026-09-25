@@ -507,7 +507,7 @@ admin' --
 3. Cualquier intento posterior desde esa misma IP (incluso tráfico legítimo) es bloqueado mientras dure la cuarentena.
 4. El evento queda registrado en `Log & Report → Security Events → Attack` con la firma disparada, la IP origen y la acción `Blocked` + `Quarantined`.
 
-> Ver evidencia: [13_payload_sqli_bloqueado.png](screenshots/13_payload_sqli_bloqueado.png), [14_ip_en_cuarentena.png](screenshots/14_ip_en_cuarentena.png)
+> Ver evidencia: [13_ip_en_cuarentena.png](screenshots/13_ip_en_cuarentena.png)
 
 ---
 
@@ -530,15 +530,14 @@ Las siguientes capturas de pantalla documentan cada punto de configuración de l
 | 10 | [`10_politica_web_db_3306.png`](screenshots/10_politica_web_db_3306.png) | Política `WebServer-to-DBServer-3306-only` mostrando src: VLAN20-WEB, dst: VLAN30-DB, servicio MYSQL (3306) únicamente, acción ACCEPT. |
 | 11 | [`11_file_filter_exe.png`](screenshots/11_file_filter_exe.png) | Perfil `FILE-FILTER-EXE` en `Security Profiles → File Filter` mostrando el tipo de archivo `exe` sobre HTTP/HTTPS con acción Block. |
 | 12 | [`12_dos_rate_limiting.png`](screenshots/12_dos_rate_limiting.png) | Policy `DOS-RATE-LIMIT-WAN` mostrando las anomalías `tcp_syn_flood` y `tcp_port_scan` en acción Block, junto al Traffic Shaper `SHAPER-WEBSERVER-PER-IP` aplicado a la política del WEB-Server. |
-| 13 | [`13_payload_sqli_bloqueado.png`](screenshots/13_payload_sqli_bloqueado.png) | Intento de SQL Injection (`' OR '1'='1' --`) contra el formulario del WEB-Server — página de bloqueo de FortiGate mostrando la firma de ataque detectada por `IPS-ANTI-SQLI`. |
-| 14 | [`14_ip_en_cuarentena.png`](screenshots/14_ip_en_cuarentena.png) | Vista de `Dashboard → Quarantine Monitor` mostrando la IP del atacante en cuarentena tras el intento de SQL Injection, con el tiempo restante de bloqueo. |
-| 15 | [`15_dhcp_leases.png`](screenshots/15_dhcp_leases.png) | Vista de leases DHCP activos en VLAN10-USUARIOS mostrando al menos un cliente con IP asignada del rango, confirmando que el DHCP funciona. |
-| 16 | [`16_https_webserver_ok.png`](screenshots/16_https_webserver_ok.png) | Acceso HTTPS exitoso desde un cliente de VLAN 10 al WEB-Server (`20.25.30.130`) — confirma la Política 1. |
-| 17 | [`17_bloqueo_dbserver.png`](screenshots/17_bloqueo_dbserver.png) | Intento fallido de conexión desde VLAN 10 al DB-Server por el puerto 3306 — confirma la Política 2 (bloqueo). |
-| 18 | [`18_bloqueo_web_db_otro_puerto.png`](screenshots/18_bloqueo_web_db_otro_puerto.png) | Intento fallido del WEB-Server de comunicarse con el DB-Server por un puerto distinto a 3306 — confirma la segmentación de la sección 4.9. |
+| 13 | [`14_ip_en_cuarentena.png`](screenshots/14_ip_en_cuarentena.png) | Vista de `Dashboard → Quarantine Monitor` mostrando la IP del atacante en cuarentena tras el intento de SQL Injection, con el tiempo restante de bloqueo. |
+| 14 | [`15_dhcp_leases.png`](screenshots/15_dhcp_leases.png) | Vista de leases DHCP activos en VLAN10-USUARIOS mostrando al menos un cliente con IP asignada del rango, confirmando que el DHCP funciona. |
+| 15 | [`16_https_webserver_ok.png`](screenshots/16_https_webserver_ok.png) | Acceso HTTPS exitoso desde un cliente de VLAN 10 al WEB-Server (`20.25.30.130`) — confirma la Política 1. |
+| 16 | [`17_bloqueo_dbserver.png`](screenshots/17_bloqueo_dbserver.png) | Intento fallido de conexión desde VLAN 10 al DB-Server por el puerto 3306 — confirma la Política 2 (bloqueo). |
+| 17 | [`18_bloqueo_web_db_otro_puerto.png`](screenshots/18_bloqueo_web_db_otro_puerto.png) | Intento fallido del WEB-Server de comunicarse con el DB-Server por un puerto distinto a 3306 — confirma la segmentación de la sección 4.9. |
 | 19 | [`19_bloqueo_descarga_exe.png`](screenshots/19_bloqueo_descarga_exe.png) | Intento de descarga de un archivo `.exe` desde un sitio web — página de bloqueo de FortiGate por el perfil `FILE-FILTER-EXE`. |
-| 20 | [`20_log_forward_traffic.png`](screenshots/20_log_forward_traffic.png) | Vista de `Log & Report → Forward Traffic` mostrando entradas de tráfico aceptado (HTTPS al WEB-Server) y bloqueado (DB-Server, descarga .exe) con IPs y políticas aplicadas. |
-| 21 | [`21_log_security_events_sqli.png`](screenshots/21_log_security_events_sqli.png) | Vista de `Log & Report → Security Events → Attack` mostrando el evento SQL Injection bloqueado, la IP origen y la acción `Blocked` + `Quarantined`. |
+| 19 | [`20_log_forward_traffic.png`](screenshots/20_log_forward_traffic.png) | Vista de `Log & Report → Forward Traffic` mostrando entradas de tráfico aceptado (HTTPS al WEB-Server) y bloqueado (DB-Server, descarga .exe) con IPs y políticas aplicadas. |
+| 20 | [`21_log_security_events_sqli.png`](screenshots/21_log_security_events_sqli.png) | Vista de `Log & Report → Security Events → Attack` mostrando el evento SQL Injection bloqueado, la IP origen y la acción `Blocked` + `Quarantined`. |
 
 ---
 
