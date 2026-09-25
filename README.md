@@ -550,10 +550,7 @@ Las siguientes capturas de pantalla documentan cada punto de configuración de l
 ├── running-configs/
 │   ├── fortigate-running-config.conf
 │   └── switch-running-config.txt
-├── scripts/
-│   └── sqli-payloads.txt       ← payloads usados en la sección 5
-└── entregable/
-    └── ArleneFernandez_20250730_P2.txt
+
 ```
 
 ---
