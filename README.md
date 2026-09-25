@@ -535,7 +535,7 @@ Las siguientes capturas de pantalla documentan cada punto de configuración de l
 | 15 | [`15_https_webserver_ok.png`](screenshots/15_https_webserver_ok.png) | Acceso HTTPS exitoso desde un cliente de VLAN 10 al WEB-Server (`20.25.30.130`) — confirma la Política 1. |
 | 16 | [`16_bloqueo_dbserver.png`](screenshots/16_bloqueo_dbserver.png) | Intento fallido de conexión desde VLAN 10 al DB-Server por el puerto 3306 — confirma la Política 2 (bloqueo). |
 | 17 | [`17_bloqueo_web_db_otro_puerto.png`](screenshots/17_bloqueo_web_db_otro_puerto.png) | Intento fallido del WEB-Server de comunicarse con el DB-Server por un puerto distinto a 3306 — confirma la segmentación de la sección 4.9. |
-| 19 | [`18_bloqueo_descarga_exe.png`](screenshots/18_bloqueo_descarga_exe.png) | Intento de descarga de un archivo `.exe` desde un sitio web — página de bloqueo de FortiGate por el perfil `FILE-FILTER-EXE`. |
+| 19 | [`18_bloqueo_descarga_exe.png`](screenshots/18_bloqueo_descarga_exe.png) | Intento de descarga de un archivo `.exe` desde un sitio web — logs de bloqueo de FortiGate por el perfil `FILE-FILTER-EXE`. |
 | 19 | [`19_log_forward_traffic.png`](screenshots/19_log_forward_traffic.png) | Vista de `Log & Report → Forward Traffic` mostrando entradas de tráfico aceptado (HTTPS al WEB-Server) y bloqueado (DB-Server, descarga .exe) con IPs y políticas aplicadas. |
 | 20 | [`20_log_security_events_sqli.png`](screenshots/20_log_security_events_sqli.png) | Vista de `Log & Report → Security Events → Attack` mostrando el evento SQL Injection bloqueado, la IP origen y la acción `Blocked` + `Quarantined`. |
 
